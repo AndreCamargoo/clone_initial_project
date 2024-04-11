@@ -4,17 +4,43 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUpdateCategory;
+use App\Repositories\Contracts\CategoryRepositoryInterface;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class CategoryController extends Controller
 {
+    protected $repository;
+
+    public function __construct(CategoryRepositoryInterface $repository)
+    {
+        $this->repository = $repository;
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $categories = DB::table("categories")->orderBy("id", "DESC")->paginate(10);
+        // ELOQUENT
+        // $categories = $this->repository->orderBy("title", "ASC")->relationships("products")->paginate(10);
+
+        // QUERY BUILDER
+        // $categories = $this->repository->orderBy("id", "DESC")->getAll();
+        // $categories = $this->repository->relationships(["products;category_id;id;left join"], ["title", "url", "description"], ["name", "price", "description"])
+        //     ->orderBy("id", "DESC")
+        //     ->getAll();
+
+        // $categories = $this->repository->orderBy("id", "DESC")->paginate(10);
+        // $categories = $this->repository
+        //     ->relationships(["products;category_id;id;left join"], ["title", "url", "description"], ["name", "price", "description"])
+        //     ->orderBy("id", "DESC")
+        //     ->paginate(10);
+
+        // $categories = $this->repository->findWhere("id", 2);
+        $categories = $this->repository->relationships(["products;category_id;id;left join"], ["title", "url", "description"], ["name", "price", "description"])
+            ->orderBy("id", "DESC")
+            ->findWhere("id", 2);
+
         return $categories;
     }
 
@@ -31,7 +57,7 @@ class CategoryController extends Controller
      */
     public function store(StoreUpdateCategory $request)
     {
-        DB::table("categories")->insert([
+        $this->repository->store([
             "title" => $request->title,
             "url" => $request->url,
             "description" => $request->description
@@ -45,7 +71,11 @@ class CategoryController extends Controller
      */
     public function show(string $id)
     {
-        $categories = DB::table("categories")->where("id", $id)->first();
+        $categories = $this->repository->findById($id);
+        // $categories = $this->repository
+        //     ->relationships(["products;category_id;id;left join"], ["id", "title", "url", "description"], ["name", "price", "description"])
+        //     ->findById($id);
+
         if ($categories) return $categories;
 
         return "Catogoria não encontrada";
@@ -56,7 +86,7 @@ class CategoryController extends Controller
      */
     public function edit(string $id)
     {
-        $categories = DB::table("categories")->where("id", $id)->first();
+        $categories = $this->repository->findWhereFirst("id", $id);
         if ($categories) return $categories;
 
         return "Catogoria não encontrada";
@@ -67,7 +97,7 @@ class CategoryController extends Controller
      */
     public function update(StoreUpdateCategory $request, string $id)
     {
-        DB::table("categories")->where("id", $id)->update([
+        $this->repository->update($id, [
             "title" => $request->title,
             "url" => $request->url,
             "description" => $request->description
@@ -77,36 +107,23 @@ class CategoryController extends Controller
     }
 
     /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
+    {
+        $this->repository->delete($id);
+
+        return "Catogoria não deletada";
+    }
+
+    /**
      * Search the specified resource in storage.
      */
     public function search(Request $request)
     {
         $data = $request->except("_token");
-
-        $categories = DB::table("categories")
-            ->where(function ($query) use ($data) {
-                if (isset($data["title"])) {
-                    $query->where('title', $data["title"]);
-                }
-                if (isset($data["url"])) {
-                    $query->where("url", $data["url"]);
-                }
-                if (isset($data["description"])) {
-                    $query->where("description", "LIKE", "%{$data["url"]}%");
-                }
-            })->orderBy("id", "DESC")->paginate(10);
+        $categories = $this->repository->search($data);
 
         return $categories;
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        $categories = DB::table("categories")->where("id", $id)->first();
-        if ($categories) $categories->delete();
-
-        return "Catogoria não encontrada";
     }
 }
