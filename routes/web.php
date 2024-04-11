@@ -8,10 +8,13 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// Category
-Route::any('admin/categories/search', [CategoryController::class, 'search'])->name('categories.search');
-Route::resource('admin/categories', CategoryController::class);
+Route::prefix('admin')->group(function () {
+    // Category
+    Route::match(['GET', 'POST'], '/categories/search', [CategoryController::class, 'search'])->name('categories.search');
+    Route::resource('/categories', CategoryController::class);
 
-// Product
-Route::any('admin/products/search', [ProductController::class, 'search'])->name('products.search');
-Route::resource('admin/products', ProductController::class);
+    // Product
+    Route::match(['GET', 'POST'], '/products/search', [ProductController::class, 'search'])->name('products.search');
+    Route::resource('/products', ProductController::class);
+});
+

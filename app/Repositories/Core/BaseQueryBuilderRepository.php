@@ -10,9 +10,7 @@ use App\Repositories\Exceptions\PropertyTableNotExists;
 
 class BaseQueryBuilderRepository implements RepositoryInterface
 {
-    protected $tb;
-    private $db;
-
+    protected $tb, $db;
     protected $orderBy = ["column" => "id", "order" => "DESC"];
     protected $innerJoin = ["tabela" => "", "foreign" => "", "references" => "", "type" => "left join", "main_table_fields" => [], "secondary_table_fields" => []];
 

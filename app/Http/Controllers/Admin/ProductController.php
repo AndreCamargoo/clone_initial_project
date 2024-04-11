@@ -25,7 +25,7 @@ class ProductController extends Controller
         // $product = $this->repository->orderBy("price", "ASC")->relationships("category")->paginate(10);
 
         // QUERY BUILDER
-        // $product = $this->repository->orderBy("price", "DESC")->getAll();
+        $product = $this->repository->orderBy("price", "DESC")->getAll();
         // $product = $this->repository->relationships(["categories;id;category_id;left join"], ["name", "price", "description"], ["title", "url", "description"])
         //     ->orderBy("id", "DESC")
         //     ->getAll();
@@ -37,9 +37,9 @@ class ProductController extends Controller
         //     ->paginate(10);
 
         // $product = $this->repository->findWhere("id", 2);   
-        $product = $this->repository->relationships(["categories;id;category_id;left join"], ["name", "price", "description"], ["title", "url", "description"])
-            ->orderBy("id", "DESC")
-            ->findWhere("id", 2);
+        // $product = $this->repository->relationships(["categories;id;category_id;left join"], ["name", "price", "description"], ["title", "url", "description"])
+        //     ->orderBy("id", "DESC")
+        //     ->findWhere("id", 2);
 
         return $product;
     }

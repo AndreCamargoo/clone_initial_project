@@ -25,7 +25,7 @@ class CategoryController extends Controller
         // $categories = $this->repository->orderBy("title", "ASC")->relationships("products")->paginate(10);
 
         // QUERY BUILDER
-        // $categories = $this->repository->orderBy("id", "DESC")->getAll();
+        $categories = $this->repository->orderBy("id", "DESC")->getAll();
         // $categories = $this->repository->relationships(["products;category_id;id;left join"], ["title", "url", "description"], ["name", "price", "description"])
         //     ->orderBy("id", "DESC")
         //     ->getAll();
@@ -37,9 +37,9 @@ class CategoryController extends Controller
         //     ->paginate(10);
 
         // $categories = $this->repository->findWhere("id", 2);
-        $categories = $this->repository->relationships(["products;category_id;id;left join"], ["title", "url", "description"], ["name", "price", "description"])
-            ->orderBy("id", "DESC")
-            ->findWhere("id", 2);
+        // $categories = $this->repository->relationships(["products;category_id;id;left join"], ["title", "url", "description"], ["name", "price", "description"])
+        //     ->orderBy("id", "DESC")
+        //     ->findWhere("id", 2);
 
         return $categories;
     }
@@ -111,6 +111,11 @@ class CategoryController extends Controller
      */
     public function destroy(string $id)
     {
+        // Opcional, uma vez que o banco de dados está habilitado o onDelete 'cascade'
+        if (count($this->repository->productsByCategoryId($id)) > 0) {
+            return "Oops parece que tem produtos vinculados a essa categoria, deseja realmente deletar?";
+        }
+
         $this->repository->delete($id);
 
         return "Catogoria não deletada";
