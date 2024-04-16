@@ -37,7 +37,7 @@ class UserController extends Controller
         //     ->orderBy("id", "DESC")
         //     ->paginate(10);
 
-        // $user = $this->repository->findWhere("id", 2);   
+        // $user = $this->repository->findWhere("id", 2);
         // $user = $this->repository->relationships(["categories;id;category_id;left join"], ["name", "price", "description"], ["title", "url", "description"])
         //     ->orderBy("id", "DESC")
         //     ->findWhere("id", 2);
@@ -61,15 +61,15 @@ class UserController extends Controller
         $this->repository->store([
             "name" => $request->name,
             "email" => $request->email,
-            "password" => $request->password
+            "password" => bcrypt($request->password)
         ]);
 
-        return "Produto cadastrado!";
+        return "Usuário cadastrado!";
     }
 
     /**
      * Display the specified resource.
-     * 
+     *
      * @param int|string $id
      */
     public function show($id)
@@ -77,12 +77,12 @@ class UserController extends Controller
         $user = $this->repository->findWhereFirst('id', $id);
         if ($user) return $user;
 
-        return "Produto não encontrado";
+        return "Usuário não encontrado";
     }
 
     /**
      * Show the form for editing the specified resource.
-     * 
+     *
      * @param int|string $id
      */
     public function edit($id)
@@ -90,37 +90,43 @@ class UserController extends Controller
         $user = $this->repository->findById($id);
         if ($user) return $user;
 
-        return "Produto não encontrado";
+        return "Usuário não encontrado";
     }
 
     /**
      * Update the specified resource in storage.
-     * 
+     *
      * @param int|string $id
      */
     public function update(StoreUpdateUser $request, $id)
     {
-        $this->repository->update($id, [
+        $data = [
             "name" => $request->name,
-            "url" => $request->url,
-            "description" => $request->description,
-            "price" => $request->price,
-            "category_id" => $request->category_id
-        ]);
+            "email" => $request->email,
+            "password" => $request->password
+        ];
 
-        return "Produto atualizado com sucesso!";
+        if ($request->password) {
+            $data["password"] = bcrypt($request->password);
+        } else {
+            unset($data["password"]);
+        }
+
+        $this->repository->update($id, $data);
+
+        return "Usuário atualizado com sucesso!";
     }
 
     /**
      * Remove the specified resource from storage.
-     * 
+     *
      * @param int|string $id
      */
     public function destroy($id)
     {
         $this->repository->delete($id);
 
-        return "Produto não deletado";
+        return "Usuário não deletado";
     }
 
     /**

@@ -23,9 +23,16 @@ class StoreUpdateUser extends FormRequest
     {
         $id = $this->id;
 
-        return [
-            "name" => ["required", "min:3", "max:60", "unique:products,name,{$id},id"],
-            "email" => ["required", "email"]
+        $rules =  [
+            "name" => ["required", "min:3", "max:60"],
+            "email" => ["required", "email", "unique:users,email,{$id},id"],
+            "password" => ["required", "min:3", "max:15"]
         ];
+
+        if ($this->isMethod('PUT') && $this->isMethod('PATCH')) {
+            $rules["password"] = ["max:15"];
+        }
+
+        return $rules;
     }
 }
