@@ -11,7 +11,7 @@ class Product extends Model
 {
     use HasFactory;
 
-    protected $fillable = ["name", "url", "price", "description", "category_id"];
+    public $fillable = ["name", "url", "price", "description", "category_id"];
     
     public static function boot()
     {

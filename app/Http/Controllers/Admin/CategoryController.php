@@ -23,9 +23,10 @@ class CategoryController extends Controller
     {
         // ELOQUENT
         // $categories = $this->repository->orderBy("title", "ASC")->relationships("products")->paginate(10);
+        $categories = $this->repository->getAll();
 
         // QUERY BUILDER
-        $categories = $this->repository->orderBy("id", "DESC")->getAll();
+        // $categories = $this->repository->orderBy("id", "DESC")->getAll();
         // $categories = $this->repository->relationships(["products;category_id;id;left join"], ["title", "url", "description"], ["name", "price", "description"])
         //     ->orderBy("id", "DESC")
         //     ->getAll();
