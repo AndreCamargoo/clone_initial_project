@@ -34,9 +34,9 @@ class BaseEloquentRespository implements RepositoryInterface
         return $this->entity->where($column, $value)->first();
     }
 
-    public function paginate($totalPage = 10)
+    public function paginate(int $page = 1, int $totalPerPage = 15, string $filter = null)
     {
-        return $this->entity->paginate($totalPage);
+        return $this->entity->paginate($totalPerPage, ['*'], 'page', $page);
     }
 
     public function store(array $data)
@@ -54,7 +54,7 @@ class BaseEloquentRespository implements RepositoryInterface
         return $this->entity->where('id', $id)->delete();
     }
 
-    public function orderBy($column, $order= 'DESC') 
+    public function orderBy($column, $order = 'DESC')
     {
         $this->entity = $this->entity->orderBy($column, $order);
         return $this;

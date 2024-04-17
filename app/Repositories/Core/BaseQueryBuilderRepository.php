@@ -57,7 +57,7 @@ class BaseQueryBuilderRepository implements RepositoryInterface
         return $this->db->table($this->tb)->where($column, $value)->first();
     }
 
-    public function paginate($totalPage = 10)
+    public function paginate(int $page = 1, int $totalPerPage = 15, string $filter = null)
     {
         $result = $this->db->table($this->tb)->orderBy($this->tb . "." . $this->orderBy['column'], $this->orderBy['order']);
 
@@ -65,7 +65,7 @@ class BaseQueryBuilderRepository implements RepositoryInterface
             $result = $this->verifyJoins($result);
         }
 
-        $result = $result->paginate($totalPage);
+        $result = $result->paginate($totalPerPage, ['*'], 'page', $page);
         return $result;
     }
 
@@ -92,7 +92,7 @@ class BaseQueryBuilderRepository implements RepositoryInterface
 
     /**
      * Last optional parameter, but if sent, inform one of the options "inner join" or "left join" or "right join"
-     * 
+     *
      * @param $relationships = "tabela;foreign;reference;left join"
      */
     public function relationships(array $relationships, array $mainFields = [], array $secondaryFields = [])

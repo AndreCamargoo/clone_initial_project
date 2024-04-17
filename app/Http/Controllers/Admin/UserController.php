@@ -19,11 +19,15 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         // ELOQUENT
         // $user = $this->repository->orderBy("id", "ASC")->paginate(10);
-        $user = $this->repository->getAll();
+        $user = $this->repository->paginate(
+            page: $request->get('page', 1),
+            totalPerPage: $request->get('per_page', 1),
+            filter: $request->filter
+        );
 
         // QUERY BUILDER
         // $user = $this->repository->orderBy("id", "DESC")->getAll();
