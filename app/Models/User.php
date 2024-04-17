@@ -12,19 +12,6 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    protected $public = ["id", "name", "email"];
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-    ];
-
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -33,6 +20,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'email_verified_at'
     ];
 
     /**
@@ -52,7 +40,7 @@ class User extends Authenticatable
     {
         parent::boot();
 
-        static::addGlobalScope('orderById', function(Builder $builder) {
+        static::addGlobalScope('orderById', function (Builder $builder) {
             $builder->orderBy('id', 'asc');
         });
     }

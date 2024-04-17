@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\DTO\User\CreateUserDTO;
+use App\DTO\User\UpdateUserDTO;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUpdateUser;
@@ -11,11 +13,9 @@ use Illuminate\Http\Response;
 
 class UserController extends Controller
 {
-    protected $repository;
 
-    public function __construct(UserRepositoryInterface $repository)
+    public function __construct(protected UserRepositoryInterface $repository)
     {
-        $this->repository = $repository;
     }
 
     /**
@@ -38,12 +38,7 @@ class UserController extends Controller
      */
     public function store(StoreUpdateUser $request)
     {
-        $user = $this->repository->store([
-            "name" => $request->name,
-            "email" => $request->email,
-            "password" => bcrypt($request->password)
-        ]);
-
+        $user = $this->repository->store(CreateUserDTO::makeFromRequest($request));
         return new UserResource($user);
     }
 
@@ -61,22 +56,10 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(StoreUpdateUser $request, string $id)
+    public function update(StoreUpdateUser $request, string|int $id)
     {
-        $data = [
-            "name" => $request->name,
-            "email" => $request->email,
-            "password" => $request->password
-        ];
-
-        if ($request->password) {
-            $data["password"] = bcrypt($request->password);
-        } else {
-            unset($data["password"]);
-        }
-
-        $user = $this->repository->update($id, $data);
-
+        $request['id'] = $id;
+        $user = $this->repository->update(UpdateUserDTO::makeFromRequest($request));
         if (!$user) return response()->json(['error' => 'Not found'], Response::HTTP_NOT_FOUND);
 
         return new UserResource($user);
@@ -87,10 +70,8 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
-        $user = $this->repository->findById($id);
+        $user = $this->repository->delete($id);
         if (!$user) return response()->json(['error' => 'Not found'], Response::HTTP_NOT_FOUND);
-
-        $user->delete($user->id);
 
         return response()->json([], Response::HTTP_NO_CONTENT);
     }

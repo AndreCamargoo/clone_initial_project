@@ -36,7 +36,7 @@ class ProductController extends Controller
         //     ->orderBy("id", "DESC")
         //     ->paginate(10);
 
-        // $product = $this->repository->findWhere("id", 2);   
+        // $product = $this->repository->findWhere("id", 2);
         // $product = $this->repository->relationships(["categories;id;category_id;left join"], ["name", "price", "description"], ["title", "url", "description"])
         //     ->orderBy("id", "DESC")
         //     ->findWhere("id", 2);
@@ -70,7 +70,7 @@ class ProductController extends Controller
 
     /**
      * Display the specified resource.
-     * 
+     *
      * @param int|string $id
      */
     public function show($id)
@@ -83,7 +83,7 @@ class ProductController extends Controller
 
     /**
      * Show the form for editing the specified resource.
-     * 
+     *
      * @param int|string $id
      */
     public function edit($id)
@@ -96,7 +96,7 @@ class ProductController extends Controller
 
     /**
      * Update the specified resource in storage.
-     * 
+     *
      * @param int|string $id
      */
     public function update(StoreUpdateProduct $request, $id)
@@ -114,7 +114,7 @@ class ProductController extends Controller
 
     /**
      * Remove the specified resource from storage.
-     * 
+     *
      * @param int|string $id
      */
     public function destroy($id)

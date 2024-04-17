@@ -2,8 +2,13 @@
 
 namespace App\Repositories\Core;
 
-use App\Repositories\Contracts\RepositoryInterface;
+use App\DTO\User\CreateUserDTO;
+use App\DTO\User\UpdateUserDTO;
+use Illuminate\Support\Facades\DB;
 use App\Repositories\Exceptions\NotEntityDefined;
+use App\Repositories\Contracts\RepositoryInterface;
+use Illuminate\Support\Facades\Hash;
+use stdClass;
 
 class BaseEloquentRespository implements RepositoryInterface
 {
@@ -14,45 +19,69 @@ class BaseEloquentRespository implements RepositoryInterface
         $this->entity = $this->resolveEntity();
     }
 
-    public function getAll()
+    public function getAll(): object|null
     {
         return $this->entity->all();
     }
 
-    public function findById($id)
+    public function findById(string|int $id): object|null
     {
         return $this->entity->find($id);
     }
 
-    public function findWhere($column, $value)
+    public function findWhere(string $column, string $value): object|null
     {
         return $this->entity->where($column, $value)->get();
     }
 
-    public function findWhereFirst($column, $value)
+    public function findWhereFirst(string $column, string $value): object|null
     {
         return $this->entity->where($column, $value)->first();
     }
 
-    public function paginate(int $page = 1, int $totalPerPage = 15, string $filter = null)
+    public function paginate(int $page = 1, int $totalPerPage = 15, string $filter = null): object|null
     {
         return $this->entity->paginate($totalPerPage, ['*'], 'page', $page);
     }
 
-    public function store(array $data)
+    public function store(CreateUserDTO $dto): object|null
     {
-        return $this->entity->create($data);
+        return DB::transaction(function () use ($dto) {
+            $user = $this->entity->forceCreate([
+                "name" => $dto->name,
+                "email" => $dto->email,
+                "password" => Hash::make($dto->password),
+            ]);
+
+            return $user;
+        });
     }
 
-    public function update($id, array $data)
+    public function update(UpdateUserDTO $dto): object|null
     {
-        return $this->entity->where('id', $id)->update($data);
+        if (!$user = $this->entity->find($dto->id)) return null;
+
+        return DB::transaction(function () use ($dto, $user) {
+            if ($dto->password) $dto->password = Hash::make($dto->password);
+            unset($dto->id);
+            $dto = (array) $dto;
+            $user->forceFill($dto)->save();
+            return $user;
+        });
     }
 
-    public function delete($id)
+    public function delete($id): bool
     {
-        return $this->entity->where('id', $id)->delete();
+        $user = $this->findById($id);
+        if (!$user) return false;
+
+        $this->entity->where('id', $id)->delete();
+        return true;
     }
+
+    /**
+     * Additional implementations
+     */
 
     public function orderBy($column, $order = 'DESC')
     {
