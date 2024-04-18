@@ -1,16 +1,15 @@
 <?php
 
-namespace App\Repositories\Core;
+namespace App\Services\Product;
 
-use App\DTO\User\CreateUserDTO;
-use App\DTO\User\UpdateUserDTO;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use App\DTO\Product\CreateProductDTO;
+use App\DTO\Product\UpdateProductDTO;
 use App\Repositories\Exceptions\NotEntityDefined;
-use App\Repositories\Contracts\RepositoryInterface;
-use Illuminate\Support\Facades\Hash;
-use stdClass;
+use App\Repositories\Contracts\Product\RepositoryProductInterface;
 
-class BaseEloquentRespository implements RepositoryInterface
+class ProductBaseEloquentRespository implements RepositoryProductInterface
 {
     protected $entity;
 
@@ -44,36 +43,37 @@ class BaseEloquentRespository implements RepositoryInterface
         return $this->entity->paginate($totalPerPage, ['*'], 'page', $page);
     }
 
-    public function store(CreateUserDTO $dto): object|null
+    public function store(CreateProductDTO $dto): object|null
     {
         return DB::transaction(function () use ($dto) {
-            $user = $this->entity->forceCreate([
+            $product = $this->entity->forceCreate([
+                "category_id" => $dto->category_id,
                 "name" => $dto->name,
-                "email" => $dto->email,
-                "password" => Hash::make($dto->password),
+                "url" => Str::slug($dto->name),
+                "description" => $dto->description,
+                "price" => $dto->price
             ]);
 
-            return $user;
+            return $product;
         });
     }
 
-    public function update(UpdateUserDTO $dto): object|null
+    public function update(UpdateProductDTO $dto): object|null
     {
-        if (!$user = $this->entity->find($dto->id)) return null;
+        if (!$product = $this->entity->find($dto->id)) return null;
 
-        return DB::transaction(function () use ($dto, $user) {
-            if ($dto->password) $dto->password = Hash::make($dto->password);
+        return DB::transaction(function () use ($dto, $product) {
             unset($dto->id);
             $dto = (array) $dto;
-            $user->forceFill($dto)->save();
-            return $user;
+            $product->forceFill($dto)->save();
+            return $product;
         });
     }
 
     public function delete($id): bool
     {
-        $user = $this->findById($id);
-        if (!$user) return false;
+        $product = $this->findById($id);
+        if (!$product) return false;
 
         $this->entity->where('id', $id)->delete();
         return true;

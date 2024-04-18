@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\DTO\Category\CreateCategoryDTO;
+use App\DTO\Category\UpdateCategoryDTO;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUpdateCategory;
-use App\Repositories\Contracts\CategoryRepositoryInterface;
+use App\Repositories\Contracts\Category\CategoryRepositoryInterface;
 use Illuminate\Http\Request;
 
 class CategoryController extends Controller
@@ -19,28 +21,14 @@ class CategoryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         // ELOQUENT
-        // $categories = $this->repository->orderBy("title", "ASC")->relationships("products")->paginate(10);
-        $categories = $this->repository->getAll();
-
-        // QUERY BUILDER
-        // $categories = $this->repository->orderBy("id", "DESC")->getAll();
-        // $categories = $this->repository->relationships(["products;category_id;id;left join"], ["title", "url", "description"], ["name", "price", "description"])
-        //     ->orderBy("id", "DESC")
-        //     ->getAll();
-
-        // $categories = $this->repository->orderBy("id", "DESC")->paginate(10);
-        // $categories = $this->repository
-        //     ->relationships(["products;category_id;id;left join"], ["title", "url", "description"], ["name", "price", "description"])
-        //     ->orderBy("id", "DESC")
-        //     ->paginate(10);
-
-        // $categories = $this->repository->findWhere("id", 2);
-        // $categories = $this->repository->relationships(["products;category_id;id;left join"], ["title", "url", "description"], ["name", "price", "description"])
-        //     ->orderBy("id", "DESC")
-        //     ->findWhere("id", 2);
+        $categories = $this->repository->orderBy("title", "ASC")->relationships("products")->paginate(
+            page: $request->get('page', 1),
+            totalPerPage: $request->get('per_page', 1),
+            filter: $request->filter
+        );
 
         return $categories;
     }
@@ -58,11 +46,7 @@ class CategoryController extends Controller
      */
     public function store(StoreUpdateCategory $request)
     {
-        $this->repository->store([
-            "title" => $request->title,
-            "url" => $request->url,
-            "description" => $request->description
-        ]);
+        $this->repository->store(CreateCategoryDTO::makeFromRequest($request));
 
         return "Categoria cadastrada!";
     }
@@ -72,11 +56,7 @@ class CategoryController extends Controller
      */
     public function show(string $id)
     {
-        $categories = $this->repository->findById($id);
-        // $categories = $this->repository
-        //     ->relationships(["products;category_id;id;left join"], ["id", "title", "url", "description"], ["name", "price", "description"])
-        //     ->findById($id);
-
+        $categories = $this->repository->findWhereFirst('id', $id);
         if ($categories) return $categories;
 
         return "Catogoria não encontrada";
@@ -87,7 +67,7 @@ class CategoryController extends Controller
      */
     public function edit(string $id)
     {
-        $categories = $this->repository->findWhereFirst("id", $id);
+        $categories = $this->repository->findById($id);
         if ($categories) return $categories;
 
         return "Catogoria não encontrada";
@@ -96,13 +76,10 @@ class CategoryController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(StoreUpdateCategory $request, string $id)
+    public function update(StoreUpdateCategory $request, string|int $id)
     {
-        $this->repository->update($id, [
-            "title" => $request->title,
-            "url" => $request->url,
-            "description" => $request->description
-        ]);
+        $request["id"] = $id;
+        $this->repository->update(UpdateCategoryDTO::makeFromRequest($request));
 
         return "Categoria atualizado com sucesso!";
     }

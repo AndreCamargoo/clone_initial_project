@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUpdateUser;
 use App\Http\Resources\UserResource;
-use App\Repositories\Contracts\UserRepositoryInterface;
+use App\Repositories\Contracts\User\UserRepositoryInterface;
 use Illuminate\Http\Response;
 
 class UserController extends Controller
@@ -68,7 +68,7 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string|int $id)
     {
         $user = $this->repository->delete($id);
         if (!$user) return response()->json(['error' => 'Not found'], Response::HTTP_NOT_FOUND);

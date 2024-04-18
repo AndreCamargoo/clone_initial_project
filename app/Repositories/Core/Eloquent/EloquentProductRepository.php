@@ -3,11 +3,11 @@
 namespace App\Repositories\Core\Eloquent;
 
 use App\Models\Product;
-use App\Repositories\Contracts\ProductRepositoryInterface;
-use App\Repositories\Core\BaseEloquentRespository;
+use App\Repositories\Contracts\Product\ProductRepositoryInterface;
+use App\Services\Product\ProductBaseEloquentRespository;
 use Illuminate\Http\Request;
 
-class EloquentProductRepository extends BaseEloquentRespository implements ProductRepositoryInterface
+class EloquentProductRepository extends ProductBaseEloquentRespository implements ProductRepositoryInterface
 {
     public function entity()
     {

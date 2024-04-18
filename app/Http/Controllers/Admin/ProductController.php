@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\DTO\Product\CreateProductDTO;
+use App\DTO\Product\UpdateProductDTO;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUpdateProduct;
-use App\Repositories\Contracts\ProductRepositoryInterface;
+use App\Repositories\Contracts\Product\ProductRepositoryInterface;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -19,27 +21,14 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         // ELOQUENT
-        // $product = $this->repository->orderBy("price", "ASC")->relationships("category")->paginate(10);
-
-        // QUERY BUILDER
-        $product = $this->repository->orderBy("price", "DESC")->getAll();
-        // $product = $this->repository->relationships(["categories;id;category_id;left join"], ["name", "price", "description"], ["title", "url", "description"])
-        //     ->orderBy("id", "DESC")
-        //     ->getAll();
-
-        // $product = $this->repository->orderBy("id", "DESC")->paginate(10);
-        // $product = $this->repository
-        //     ->relationships(["categories;id;category_id;left join"], ["name", "price", "description"], ["title", "url", "description"])
-        //     ->orderBy("id", "DESC")
-        //     ->paginate(10);
-
-        // $product = $this->repository->findWhere("id", 2);
-        // $product = $this->repository->relationships(["categories;id;category_id;left join"], ["name", "price", "description"], ["title", "url", "description"])
-        //     ->orderBy("id", "DESC")
-        //     ->findWhere("id", 2);
+        $product = $this->repository->orderBy("price", "ASC")->relationships("category")->paginate(
+            page: $request->get('page', 1),
+            totalPerPage: $request->get('per_page', 1),
+            filter: $request->filter
+        );
 
         return $product;
     }
@@ -57,13 +46,7 @@ class ProductController extends Controller
      */
     public function store(StoreUpdateProduct $request)
     {
-        $this->repository->store([
-            "name" => $request->name,
-            "url" => $request->url,
-            "description" => $request->description,
-            "price" => $request->price,
-            "category_id" => $request->category_id
-        ]);
+        $this->repository->store(CreateProductDTO::makeFromRequest($request));
 
         return "Produto cadastrado!";
     }
@@ -101,13 +84,8 @@ class ProductController extends Controller
      */
     public function update(StoreUpdateProduct $request, $id)
     {
-        $this->repository->update($id, [
-            "name" => $request->name,
-            "url" => $request->url,
-            "description" => $request->description,
-            "price" => $request->price,
-            "category_id" => $request->category_id
-        ]);
+        $request["id"] = $id;
+        $this->repository->update(UpdateProductDTO::makeFromRequest($request));
 
         return "Produto atualizado com sucesso!";
     }

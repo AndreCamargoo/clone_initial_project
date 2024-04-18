@@ -11,13 +11,11 @@ class Product extends Model
 {
     use HasFactory;
 
-    public $fillable = ["name", "url", "price", "description", "category_id"];
-    
     public static function boot()
     {
         parent::boot();
 
-        static::addGlobalScope('orderByPrice', function(Builder $builder) {
+        static::addGlobalScope('orderByPrice', function (Builder $builder) {
             $builder->orderBy('price', 'asc');
         });
     }

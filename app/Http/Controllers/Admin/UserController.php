@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\DTO\User\CreateUserDTO;
+use App\DTO\User\UpdateUserDTO;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUpdateUser;
-use App\Repositories\Contracts\UserRepositoryInterface;
+use App\Repositories\Contracts\User\UserRepositoryInterface;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
@@ -21,30 +23,11 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        // ELOQUENT
-        // $user = $this->repository->orderBy("id", "ASC")->paginate(10);
         $user = $this->repository->paginate(
             page: $request->get('page', 1),
             totalPerPage: $request->get('per_page', 1),
             filter: $request->filter
         );
-
-        // QUERY BUILDER
-        // $user = $this->repository->orderBy("id", "DESC")->getAll();
-        // $user = $this->repository->relationships(["categories;id;category_id;left join"], ["name", "price", "description"], ["title", "url", "description"])
-        //     ->orderBy("id", "DESC")
-        //     ->getAll();
-
-        // $user = $this->repository->orderBy("id", "DESC")->paginate(10);
-        // $user = $this->repository
-        //     ->relationships(["categories;id;category_id;left join"], ["name", "price", "description"], ["title", "url", "description"])
-        //     ->orderBy("id", "DESC")
-        //     ->paginate(10);
-
-        // $user = $this->repository->findWhere("id", 2);
-        // $user = $this->repository->relationships(["categories;id;category_id;left join"], ["name", "price", "description"], ["title", "url", "description"])
-        //     ->orderBy("id", "DESC")
-        //     ->findWhere("id", 2);
 
         return $user;
     }
@@ -62,12 +45,7 @@ class UserController extends Controller
      */
     public function store(StoreUpdateUser $request)
     {
-        $this->repository->store([
-            "name" => $request->name,
-            "email" => $request->email,
-            "password" => bcrypt($request->password)
-        ]);
-
+        $this->repository->store(CreateUserDTO::makeFromRequest($request));
         return "Usuário cadastrado!";
     }
 
@@ -104,19 +82,8 @@ class UserController extends Controller
      */
     public function update(StoreUpdateUser $request, $id)
     {
-        $data = [
-            "name" => $request->name,
-            "email" => $request->email,
-            "password" => $request->password
-        ];
-
-        if ($request->password) {
-            $data["password"] = bcrypt($request->password);
-        } else {
-            unset($data["password"]);
-        }
-
-        $this->repository->update($id, $data);
+        $request['id'] = $id;
+        $this->repository->update(UpdateUserDTO::makeFromRequest($request));
 
         return "Usuário atualizado com sucesso!";
     }

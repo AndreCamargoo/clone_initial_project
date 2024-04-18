@@ -3,10 +3,10 @@
 namespace App\Repositories\Core\Eloquent;
 
 use App\Models\Category;
-use App\Repositories\Contracts\CategoryRepositoryInterface;
-use App\Repositories\Core\BaseEloquentRespository;
+use App\Repositories\Contracts\Category\CategoryRepositoryInterface;
+use App\Services\Category\CategoryBaseEloquentRespository;
 
-class EloquentCategoryRepository extends BaseEloquentRespository implements CategoryRepositoryInterface
+class EloquentCategoryRepository extends CategoryBaseEloquentRespository implements CategoryRepositoryInterface
 {
     public function entity()
     {
@@ -28,5 +28,9 @@ class EloquentCategoryRepository extends BaseEloquentRespository implements Cate
                 $query->where("description", "LIKE", "%{$data["url"]}%");
             }
         })->orderBy("id", "DESC")->paginate(10);
+    }
+
+    public function productsByCategoryId($id)
+    {
     }
 }
