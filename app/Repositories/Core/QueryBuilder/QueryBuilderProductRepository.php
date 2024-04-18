@@ -2,11 +2,11 @@
 
 namespace App\Repositories\Core\QueryBuilder;
 
-use App\Repositories\Contracts\ProductRepositoryInterface;
-use App\Repositories\Core\BaseQueryBuilderRepository;
+use App\Repositories\Contracts\Product\ProductRepositoryInterface;
+use App\Services\Product\ProductBaseQueryBuilderRepository;
 use Illuminate\Http\Request;
 
-class QueryBuilderProductRepository extends BaseQueryBuilderRepository implements ProductRepositoryInterface
+class QueryBuilderProductRepository extends ProductBaseQueryBuilderRepository implements ProductRepositoryInterface
 {
     protected $table = 'products';
 

@@ -29,8 +29,8 @@ class UserController extends Controller
             filter: $request->filter
         );
 
-        return UserResource::collection($user);
-        //->additional([])
+        return $user;
+        // return UserResource::collection($user)->additional([]);
     }
 
     /**

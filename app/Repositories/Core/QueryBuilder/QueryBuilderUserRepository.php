@@ -2,11 +2,11 @@
 
 namespace App\Repositories\Core\QueryBuilder;
 
-use App\Repositories\Contracts\UserRepositoryInterface;
-use App\Repositories\Core\BaseQueryBuilderRepository;
+use App\Repositories\Contracts\User\UserRepositoryInterface;
+use App\Services\User\UserBaseQueryBuilderRepository;
 use Illuminate\Http\Request;
 
-class QueryBuilderUserRepository extends BaseQueryBuilderRepository implements UserRepositoryInterface
+class QueryBuilderUserRepository extends UserBaseQueryBuilderRepository implements UserRepositoryInterface
 {
     protected $table = 'users';
 

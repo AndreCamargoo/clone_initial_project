@@ -28,8 +28,8 @@ class CategoryController extends Controller
             filter: $request->filter
         );
 
-        return CategoryResource::collection($category);
-        //->additional([])
+        return $category;
+        // return CategoryResource::collection($category)->additional([]);
     }
 
     /**

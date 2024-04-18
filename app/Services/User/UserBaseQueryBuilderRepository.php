@@ -1,14 +1,18 @@
 <?php
 
-namespace App\Repositories\Core;
+namespace App\Services\User;
 
+use App\DTO\User\CreateUserDTO;
+use App\DTO\User\UpdateUserDTO;
 use Illuminate\Support\Str;
-// use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\DB as DBT;
 use Illuminate\Database\DatabaseManager as DB;
-use App\Repositories\Contracts\RepositoryInterface;
+use App\Repositories\Contracts\User\RepositoryUserInterface;
 use App\Repositories\Exceptions\PropertyTableNotExists;
+use Illuminate\Support\Facades\Hash;
+use Carbon\Carbon;
 
-class BaseQueryBuilderRepository implements RepositoryInterface
+class UserBaseQueryBuilderRepository implements RepositoryUserInterface
 {
     protected $tb, $db;
     protected $orderBy = ["column" => "id", "order" => "DESC"];
@@ -28,13 +32,15 @@ class BaseQueryBuilderRepository implements RepositoryInterface
             $result = $this->verifyJoins($result);
         }
 
-        $result = $result->get();
+        $result = json_decode(json_encode($result->get()), true);
+
         return $result;
     }
 
     public function findById($id)
     {
-        return $this->db->table($this->tb)->find($id);
+        $result = (array) $this->db->table($this->tb)->find($id);
+        return $result;
     }
 
     public function findWhere($column, $value)
@@ -46,15 +52,16 @@ class BaseQueryBuilderRepository implements RepositoryInterface
             $result = $this->verifyJoins($result);
         }
 
-        $result = $result->where($this->tb . "." . $column, $value);
-
+        $result = $result->where($this->tb . "." . $column, "LIKE", "%" . $value . "%");
         $result = $result->get();
+
         return $result;
     }
 
     public function findWhereFirst($column, $value)
     {
-        return $this->db->table($this->tb)->where($column, $value)->first();
+        $result = (array) $this->db->table($this->tb)->where($column, $value)->first();
+        return $result;
     }
 
     public function paginate(int $page = 1, int $totalPerPage = 15, string $filter = null)
@@ -66,17 +73,38 @@ class BaseQueryBuilderRepository implements RepositoryInterface
         }
 
         $result = $result->paginate($totalPerPage, ['*'], 'page', $page);
+
         return $result;
     }
 
-    public function store(array $data)
+    public function store(CreateUserDTO $dto)
     {
-        return $this->db->table($this->tb)->insert($data);
+        return DBT::transaction(function () use ($dto) {
+            $insert = $this->db->table($this->tb)->insertGetId([
+                "name" => $dto->name,
+                "email" => $dto->email,
+                "password" => Hash::make($dto->password),
+                "created_at" => Carbon::now(),
+                "updated_at" => Carbon::now()
+            ]);
+
+            $user = $this->findById($insert);
+
+            return  (array) $user;
+        });
     }
 
-    public function update($id, array $data)
+    public function update(UpdateUserDTO $dto)
     {
-        return $this->db->table($this->tb)->where('id', $id)->update($data);
+        if (!$user = $this->findById($dto->id)) return null;
+
+        return DBT::transaction(function () use ($dto, $user) {
+            if ($dto->password) $dto->password = Hash::make($dto->password);
+            unset($dto->id);
+            $dto = (array) $dto;
+            $this->db->table($this->tb)->where('id', $user["id"])->update($dto);
+            return (array) $this->findById($user["id"]);
+        });
     }
 
     public function delete($id)

@@ -18,32 +18,32 @@ class CategoryBaseEloquentRespository implements RepositoryCategoryInterface
         $this->entity = $this->resolveEntity();
     }
 
-    public function getAll(): object|null
+    public function getAll()
     {
         return $this->entity->all();
     }
 
-    public function findById(string|int $id): object|null
+    public function findById(string|int $id)
     {
         return $this->entity->find($id);
     }
 
-    public function findWhere(string $column, string $value): object|null
+    public function findWhere(string $column, string $value)
     {
         return $this->entity->where($column, $value)->get();
     }
 
-    public function findWhereFirst(string $column, string $value): object|null
+    public function findWhereFirst(string $column, string $value)
     {
         return $this->entity->where($column, $value)->first();
     }
 
-    public function paginate(int $page = 1, int $totalPerPage = 15, string $filter = null): object|null
+    public function paginate(int $page = 1, int $totalPerPage = 15, string $filter = null)
     {
         return $this->entity->paginate($totalPerPage, ['*'], 'page', $page);
     }
 
-    public function store(CreateCategoryDTO $dto): object|null
+    public function store(CreateCategoryDTO $dto)
     {
         return DB::transaction(function () use ($dto) {
             $category = $this->entity->forceCreate([
@@ -56,7 +56,7 @@ class CategoryBaseEloquentRespository implements RepositoryCategoryInterface
         });
     }
 
-    public function update(UpdateCategoryDTO $dto): object|null
+    public function update(UpdateCategoryDTO $dto)
     {
         if (!$category = $this->entity->find($dto->id)) return null;
 
@@ -68,7 +68,7 @@ class CategoryBaseEloquentRespository implements RepositoryCategoryInterface
         });
     }
 
-    public function delete($id): bool
+    public function delete($id)
     {
         $product = $this->findById($id);
         if (!$product) return false;

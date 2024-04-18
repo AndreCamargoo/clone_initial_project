@@ -2,10 +2,10 @@
 
 namespace App\Repositories\Core\QueryBuilder;
 
-use App\Repositories\Contracts\CategoryRepositoryInterface;
-use App\Repositories\Core\BaseQueryBuilderRepository;
+use App\Repositories\Contracts\Category\CategoryRepositoryInterface;
+use App\Services\Category\CategoryBaseQueryBuilderRepository;
 
-class QueryBuilderCategoryRepository extends BaseQueryBuilderRepository implements CategoryRepositoryInterface
+class QueryBuilderCategoryRepository extends CategoryBaseQueryBuilderRepository implements CategoryRepositoryInterface
 {
     protected $table = 'categories';
 

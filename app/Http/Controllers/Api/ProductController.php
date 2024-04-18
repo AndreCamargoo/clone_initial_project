@@ -28,8 +28,8 @@ class ProductController extends Controller
             filter: $request->filter
         );
 
-        return ProductResource::collection($product);
-        //->additional([])
+        return $product;
+        // return ProductResource::collection($product)->additional([]);
     }
 
     /**
