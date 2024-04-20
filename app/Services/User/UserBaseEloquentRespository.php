@@ -7,6 +7,7 @@ use App\DTO\User\UpdateUserDTO;
 use App\Repositories\Contracts\User\RepositoryUserInterface;
 use Illuminate\Support\Facades\DB;
 use App\Repositories\Exceptions\NotEntityDefined;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
 class UserBaseEloquentRespository implements RepositoryUserInterface
@@ -38,9 +39,25 @@ class UserBaseEloquentRespository implements RepositoryUserInterface
         return $this->entity->where($column, $value)->first();
     }
 
-    public function paginate(int $page = 1, int $totalPerPage = 15, string $filter = null): object|null
+    public function paginate(int $page = 1, int $totalPerPage = 15, Request $filter = null): object|null
     {
-        return $this->entity->paginate($totalPerPage, ['*'], 'page', $page);
+        $result = $this->entity;
+
+        if ($filter["name"] || $filter["email"]) {
+            $result = $result->where(function ($query) use ($filter) {
+                if ($filter["name"] || $filter["email"]) {
+                    $query->where("name", "LIKE", "%" . $filter["name"] . "%");
+                    // $query->orWhere('last_name', $filter["name"]);
+                }
+
+                if ($filter["email"]) {
+                    $query->where("email", "LIKE", "%" . $filter["email"] . "%");
+                }
+            });
+        }
+
+        $result = $result->paginate($totalPerPage, ['*'], 'page', $page);
+        return $result;
     }
 
     public function store(CreateUserDTO $dto): object|null

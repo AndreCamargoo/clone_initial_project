@@ -8,6 +8,7 @@ use App\DTO\Product\CreateProductDTO;
 use App\DTO\Product\UpdateProductDTO;
 use App\Repositories\Exceptions\NotEntityDefined;
 use App\Repositories\Contracts\Product\RepositoryProductInterface;
+use Illuminate\Http\Request;
 
 class ProductBaseEloquentRespository implements RepositoryProductInterface
 {
@@ -18,32 +19,44 @@ class ProductBaseEloquentRespository implements RepositoryProductInterface
         $this->entity = $this->resolveEntity();
     }
 
-    public function getAll(): object|null
+    public function getAll()
     {
         return $this->entity->all();
     }
 
-    public function findById(string|int $id): object|null
+    public function findById(string|int $id)
     {
         return $this->entity->find($id);
     }
 
-    public function findWhere(string $column, string $value): object|null
+    public function findWhere(string $column, string $value)
     {
         return $this->entity->where($column, $value)->get();
     }
 
-    public function findWhereFirst(string $column, string $value): object|null
+    public function findWhereFirst(string $column, string $value)
     {
         return $this->entity->where($column, $value)->first();
     }
 
-    public function paginate(int $page = 1, int $totalPerPage = 15, string $filter = null): object|null
+    public function paginate(int $page = 1, int $totalPerPage = 15, Request $filter = null)
     {
-        return $this->entity->paginate($totalPerPage, ['*'], 'page', $page);
+        $result = $this->entity;
+
+        if ($filter["name"] || $filter["price"]) {
+            $result = $result->where(function ($query) use ($filter) {
+                if ($filter["name"]) {
+                    $query->where("name", "LIKE", "%" . $filter["name"] . "%");
+                    // $query->orWhere('last_name', $filter["name"]);
+                }
+            });
+        }
+
+        $result = $result->paginate($totalPerPage, ['*'], 'page', $page);
+        return $result;
     }
 
-    public function store(CreateProductDTO $dto): object|null
+    public function store(CreateProductDTO $dto)
     {
         return DB::transaction(function () use ($dto) {
             $product = $this->entity->forceCreate([
@@ -58,7 +71,7 @@ class ProductBaseEloquentRespository implements RepositoryProductInterface
         });
     }
 
-    public function update(UpdateProductDTO $dto): object|null
+    public function update(UpdateProductDTO $dto)
     {
         if (!$product = $this->entity->find($dto->id)) return null;
 
@@ -70,7 +83,7 @@ class ProductBaseEloquentRespository implements RepositoryProductInterface
         });
     }
 
-    public function delete($id): bool
+    public function delete($id)
     {
         $product = $this->findById($id);
         if (!$product) return false;

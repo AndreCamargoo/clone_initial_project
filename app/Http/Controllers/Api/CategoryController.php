@@ -25,7 +25,7 @@ class CategoryController extends Controller
         $category = $this->repository->paginate(
             page: $request->get('page', 1),
             totalPerPage: $request->get('per_page', 1),
-            filter: $request->filter
+            filter: $request
         );
 
         return $category;

@@ -41,8 +41,8 @@ class RepositoryServiceProvider extends ServiceProvider
 
         $this->app->bind(
             ProductRepositoryInterface::class,
-            QueryBuilderProductRepository::class,
-            // EloquentProductRepository::class
+            // QueryBuilderProductRepository::class,
+            EloquentProductRepository::class
         );
     }
 

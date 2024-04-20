@@ -8,6 +8,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use App\Repositories\Contracts\Category\RepositoryCategoryInterface;
 use App\Repositories\Exceptions\NotEntityDefined;
+use Illuminate\Http\Request;
 
 class CategoryBaseEloquentRespository implements RepositoryCategoryInterface
 {
@@ -38,9 +39,21 @@ class CategoryBaseEloquentRespository implements RepositoryCategoryInterface
         return $this->entity->where($column, $value)->first();
     }
 
-    public function paginate(int $page = 1, int $totalPerPage = 15, string $filter = null)
+    public function paginate(int $page = 1, int $totalPerPage = 15, Request $filter = null)
     {
-        return $this->entity->paginate($totalPerPage, ['*'], 'page', $page);
+        $result = $this->entity;
+
+        if ($filter["title"]) {
+            $result = $result->where(function ($query) use ($filter) {
+                if ($filter["title"]) {
+                    $query->where("title", "LIKE", "%" . $filter["title"] . "%");
+                    // $query->orWhere('last_name', $filter["name"]);
+                }
+            });
+        }
+
+        $result = $result->paginate($totalPerPage, ['*'], 'page', $page);
+        return $result;
     }
 
     public function store(CreateCategoryDTO $dto)
