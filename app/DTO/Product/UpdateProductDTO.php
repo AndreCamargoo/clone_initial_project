@@ -12,7 +12,8 @@ class UpdateProductDTO
         public string $url,
         public string $description,
         public float $price,
-        public string|int $category_id
+        public string|int $category_id,
+        public object|null $image
     ) {
     }
 
@@ -24,7 +25,8 @@ class UpdateProductDTO
             $request->url,
             $request->description,
             $request->price,
-            $request->category_id
+            $request->category_id,
+            $request->image
         );
     }
 }

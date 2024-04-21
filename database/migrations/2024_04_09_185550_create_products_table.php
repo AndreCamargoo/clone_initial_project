@@ -18,7 +18,11 @@ return new class extends Migration
             $table->string('url')->unique();
             $table->string('description')->nullable();
             $table->double('price', 10, 2);
+            $table->string('image')->nullable();
+            $table->string('original_name_image')->nullable();
+            $table->string('image_ext')->nullable();
             $table->timestamps();
+
 
             $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
         });

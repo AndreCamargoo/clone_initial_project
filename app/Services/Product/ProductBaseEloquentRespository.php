@@ -9,6 +9,7 @@ use App\DTO\Product\UpdateProductDTO;
 use App\Repositories\Exceptions\NotEntityDefined;
 use App\Repositories\Contracts\Product\RepositoryProductInterface;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProductBaseEloquentRespository implements RepositoryProductInterface
 {
@@ -59,12 +60,26 @@ class ProductBaseEloquentRespository implements RepositoryProductInterface
     public function store(CreateProductDTO $dto)
     {
         return DB::transaction(function () use ($dto) {
+            if ($dto->image->isValid()) {
+                $name = Str::kebab($dto->name);
+                $originalName = $dto->image->getClientOriginalName();
+                $ext = $dto->image->extension();
+
+                $newName = "{$name}.{$ext}";
+                // $upload = $dto->image->storeAs('products', $newName);
+                $upload = $dto->image->store('products');
+                if (!$upload) return false;
+            }
+
             $product = $this->entity->forceCreate([
                 "category_id" => $dto->category_id,
                 "name" => $dto->name,
                 "url" => Str::slug($dto->name),
                 "description" => $dto->description,
-                "price" => $dto->price
+                "price" => $dto->price,
+                "image" => $upload ?? null,
+                "original_name_image" => $originalName ?? null,
+                "image_ext" => $ext ?? null,
             ]);
 
             return $product;
@@ -76,9 +91,33 @@ class ProductBaseEloquentRespository implements RepositoryProductInterface
         if (!$product = $this->entity->find($dto->id)) return null;
 
         return DB::transaction(function () use ($dto, $product) {
-            unset($dto->id);
-            $dto = (array) $dto;
-            $product->forceFill($dto)->save();
+            if ($dto->image->isValid()) {
+                //Deletar img
+                if ($product->image && Storage::exists($product->image)) {
+                    Storage::delete($product->image);
+                }
+
+                $name = Str::kebab($dto->name);
+                $originalName = $dto->image->getClientOriginalName();
+                $ext = $dto->image->extension();
+
+                $newName = "{$name}.{$ext}";
+                // $upload = $dto->image->storeAs('products', $newName);
+                $upload = $dto->image->store('products');
+
+                if (!$upload) return false;
+            }
+
+            $product->forceFill([
+                "category_id" => $dto->category_id,
+                "name" => $dto->name,
+                "url" => Str::slug($dto->name),
+                "description" => $dto->description,
+                "price" => $dto->price,
+                "image" => $upload ?? null,
+                "original_name_image" => $originalName ?? null,
+                "image_ext" => $ext ?? null,
+            ])->save();
             return $product;
         });
     }
@@ -87,6 +126,11 @@ class ProductBaseEloquentRespository implements RepositoryProductInterface
     {
         $product = $this->findById($id);
         if (!$product) return false;
+
+        //Deletar img
+        if ($product->image && Storage::exists($product->image)) {
+            Storage::delete($product->image);
+        }
 
         $this->entity->where('id', $id)->delete();
         return true;

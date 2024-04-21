@@ -10,7 +10,8 @@ class CreateProductDTO
         public string $name,
         public string $description,
         public float $price,
-        public string|int $category_id
+        public string|int $category_id,
+        public object|null $image
     ) {
     }
 
@@ -20,7 +21,8 @@ class CreateProductDTO
             $request->name,
             $request->description,
             $request->price,
-            $request->category_id
+            $request->category_id,
+            $request->image
         );
     }
 }
