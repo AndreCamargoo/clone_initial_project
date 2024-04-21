@@ -13,5 +13,5 @@ use App\Http\Controllers\Api\{
 // })->middleware('auth:sanctum');
 
 Route::apiResource('/users', UserController::class);
-Route::apiResource('/category', CategoryController::class);
-Route::apiResource('/product', ProductController::class);
+Route::apiResource('/categories', CategoryController::class);
+Route::apiResource('/products', ProductController::class);
