@@ -127,7 +127,7 @@ class ProductBaseEloquentRespository implements RepositoryProductInterface
         $product = $this->findById($id);
         if (!$product) return false;
 
-        //Deletar img
+        // Deletar img
         if ($product->image && Storage::exists($product->image)) {
             Storage::delete($product->image);
         }
