@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\v1;
 
 use App\DTO\Product\CreateProductDTO;
 use App\DTO\Product\UpdateProductDTO;

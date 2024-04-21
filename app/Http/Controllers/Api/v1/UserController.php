@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\v1;
 
 use App\DTO\User\CreateUserDTO;
 use App\DTO\User\UpdateUserDTO;
