@@ -1,25 +1,9 @@
 <?php
 
-use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\ProductController;
-use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return ['Laravel' => app()->version()];
 });
 
-Route::prefix('admin')->group(function () {
-    // Category
-    Route::match(['GET', 'POST'], '/categories/search', [CategoryController::class, 'search'])->name('categories.search');
-    Route::resource('/categories', CategoryController::class);
-
-    // Product
-    Route::match(['GET', 'POST'], '/products/search', [ProductController::class, 'search'])->name('products.search');
-    Route::resource('/products', ProductController::class);
-
-    // Users
-    Route::match(['GET', 'POST'], '/users/search', [UserController::class, 'search'])->name('users.search');
-    Route::resource('/users', UserController::class);
-});
-
+require __DIR__.'/auth.php';
