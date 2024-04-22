@@ -15,6 +15,7 @@ class ProductController extends Controller
 {
     public function __construct(protected ProductRepositoryInterface $repository)
     {
+        $this->middleware('auth:api');
     }
 
     /**

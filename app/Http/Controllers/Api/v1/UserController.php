@@ -16,6 +16,7 @@ class UserController extends Controller
 
     public function __construct(protected UserRepositoryInterface $repository)
     {
+        $this->middleware('auth:api');
     }
 
     /**

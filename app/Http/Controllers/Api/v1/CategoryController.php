@@ -15,6 +15,7 @@ class CategoryController extends Controller
 {
     public function __construct(protected CategoryRepositoryInterface $repository)
     {
+        $this->middleware('auth:api');
     }
 
     /**
