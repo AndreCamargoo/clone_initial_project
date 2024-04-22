@@ -44,4 +44,14 @@ return Application::configure(basePath: dirname(__DIR__))
                 ], 404);
             }
         });
+
+        // Jwt Expired
+        $exceptions->render(function (Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
+            return response()->json(['token_expired'], $e->getStatusCode());
+        });
+
+        // Jwt Expired
+        $exceptions->render(function (Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
+            return response()->json(['token_invalid'], $e->getStatusCode());
+        });
     })->create();
